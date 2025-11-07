@@ -1,0 +1,5 @@
+=== BASELINE SUMMARY ===
+bce loss: 9.4340
+precision: 0.9057 | recall: 1.0000 | f1: 0.9505
+accuracy: 0.9057
+counts: TP=48 TN=0 FP=5 FN=0 N=53
