@@ -2,48 +2,12 @@
 // ImageCollection ID: COPERNICUS/S3/OLCI
 // DATASET URL: https://developers.google.com/earth-engine/datasets/catalog/COPERNICUS_S3_OLCI
 
-// EXPLORE FIRST IMAGE
-// Load image collection.
-var dataset = ee.ImageCollection('COPERNICUS/S3/OLCI');
-// function applyScaleFactors(image) {
-//   var opticalBands = image.select('SR_B.').multiply(0.0000275).add(-0.2);
-//   var thermalBands = image.select('ST_B.*').multiply(0.00341802).add(149.0);
-//   return image.addBands(opticalBands, null, true)
-//               .addBands(thermalBands, null, true);
-// }
-// // Scale all images.
-// dataset = dataset.map(applyScaleFactors);
-// Get first image.
-var img1 = dataset.first();
-print(img1);
-
-// // View on map.
-// var visualization = {
-//   bands: ['SR_B4', 'SR_B3', 'SR_B2'],
-//   min: 0.0,
-//   max: 0.3,
-// };
-// Map.setCenter(-114.2579, 38.9275, 8);
-// Map.addLayer(dataset, visualization, 'True Color (432)');
-
-
 // CONSTANTS
-var YEARS = [
-  1938.0, 1945.0, 1954.0, 1962.0, 1964.0, 1970.0, 1971.0, 1972.0, 
-  1980.0, 1982.0, 1985.0, 1986.0, 
-  1987.0, 1988.0, 1989.0, 1990.0, 1991.0, 1992.0, 
-  1993.0, 1994.0, 1995.0, 1996.0, 1997.0, 1998.0, 
-  1999.0, 2000.0, 2001.0, 2002.0, 2003.0, 2004.0, 
-  2005.0, 2006.0, 2007.0, 2008.0, 2009.0, 2010.0, 
-  2011.0, 2012.0, 2013.0, 2014.0, 2015.0,  
-  2016.0, 2017.0, 2018.0, 2019.0, 2020.0, 2021.0, 
-  2022.0, 2023.0, 2024.0, 2025
-];
+var YEARS = [2016, 2017, 2018, 2019, 2020, 
+             2021, 2022, 2023, 2024, 2025];
 
-var REDUCER_YEAR = ee.Reducer.mean() // mean
-                    // .combine(ee.Reducer.percentile([5, 50, 95]), '', true); // 5th, 50th, 95th percetile
-                     .combine(ee.Reducer.stdDev(), '', true); // standard deviation
-                     
+var REDUCER_YEAR = ee.Reducer.mean()
+                             .combine(ee.Reducer.stdDev(), '', true);
 var ROI = [ // lon min, lat min, lon max, lat max
   ee.Geometry.BBox(-30, 26, 15, 56),
   ee.Geometry.BBox(-115, 20, -101, 33),
@@ -98,7 +62,7 @@ function processAndExportYear(year, num_years, bands, reducer, crs, resolution,
   
   // Create image export task.
   var filename = year + "_" + suffix;
-  var task = Export.image.toDrive({
+  Export.image.toDrive({
     image: img,
     description: filename,
     region: bb,
@@ -110,17 +74,6 @@ function processAndExportYear(year, num_years, bands, reducer, crs, resolution,
     skipEmptyTiles: true
   });
 }
-
-// function applyScaleFactors(image) {
-//   /** Function to scale band pixels to actual values. 
-//       @parameter image: Unscaled ImageCollection image.
-//       @return image: Scaled ImageCollection image.
-//   **/
-//   var opticalBands = image.select('SR_B.').multiply(0.0000275).add(-0.2);
-//   var thermalBands = image.select('ST_B.*').multiply(0.00341802).add(149.0);
-//   return image.addBands(opticalBands, null, true)
-//               .addBands(thermalBands, null, true);
-// }
 
 // PROCESS DATA FOR ALL REGIONS OF INTEREST ONE YEAR AT A TIME
 for (var i = 0; i < ROI.length; i++) {
